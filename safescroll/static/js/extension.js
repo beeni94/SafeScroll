@@ -6,13 +6,13 @@
 
   const buttons = [...context.querySelectorAll('[data-extension-pair-button]')];
   const feedback = context.querySelector('[data-pairing-feedback]');
-  const message = context.querySelector('[data-pairing-message]');
+  const messages = [...context.querySelectorAll('[data-pairing-message]')];
   let extensionDetected = false;
   let responseTimer = null;
 
   const setState = (state, text) => {
     feedback?.setAttribute('data-state', state);
-    if (message) message.textContent = text;
+    messages.forEach((message) => { message.textContent = text; });
     buttons.forEach((button) => {
       button.disabled = state === 'working';
       button.setAttribute('aria-busy', String(state === 'working'));

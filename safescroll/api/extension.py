@@ -61,12 +61,17 @@ def _perform_sync(cleaned: dict):
         device, device_error = _resolve_sync_device(cleaned, configuration)
     except IntegrityError:
         db.session.rollback()
+        _record_request_error(
+            "The extension device could not be bound because of a synchronization conflict."
+        )
         return error(
             "device_binding_conflict",
             "The extension device could not be bound. Retry the request.",
             status=409,
         )
     if device_error:
+        if getattr(device_error, "status_code", 0) >= 400:
+            _record_request_error("The extension device could not be synchronized.")
         return device_error
 
     server_version = configuration.config_version
@@ -120,6 +125,9 @@ def _perform_sync(cleaned: dict):
             sync_status=sync_status,
         ):
             db.session.rollback()
+            _record_request_error(
+                "The configuration changed while the extension was synchronizing."
+            )
             return error(
                 "configuration_changed",
                 "The extension configuration changed during synchronization. Retry the request.",
@@ -128,6 +136,9 @@ def _perform_sync(cleaned: dict):
         db.session.commit()
     except (IntegrityError, OperationalError):
         db.session.rollback()
+        _record_request_error(
+            "The configuration changed while the extension was synchronizing."
+        )
         return error(
             "sync_conflict",
             "The extension configuration changed during synchronization. Retry the request.",
