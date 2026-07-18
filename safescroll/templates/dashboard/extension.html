@@ -1,0 +1,149 @@
+{% extends 'base_dashboard.html' %}
+{% from 'macros.html' import csrf_input, datetime_label %}
+{% block title %}Chrome Extension{% endblock %}
+{% block page_label %}Extension{% endblock %}
+{% block content %}
+{% set device_list = devices|default([], true) %}
+{% set connected_list = connected_devices|default([], true) %}
+{% set configuration = extension_configuration|default(None) %}
+<div class="extension-pairing-context"
+     data-extension-pairing
+     data-pair-url="/api/extension/pair"
+     data-csrf-token="{{ csrf_token() }}">
+
+<header class="page-heading extension-page-heading">
+  <div>
+    <div class="eyebrow">Browser connection</div>
+    <h1>SafeScroll for Chrome</h1>
+    <p>Review extension access, sync freshness, and every Chrome browser connected to your account.</p>
+  </div>
+  {% if connected_list %}
+    <span class="badge success large-badge" role="status"><span class="status-dot"></span>Connected</span>
+  {% else %}
+    <span class="badge large-badge" role="status"><span class="status-dot"></span>Not connected</span>
+  {% endif %}
+</header>
+
+<section class="extension-status-grid" aria-label="Extension status summary">
+  <article class="card extension-status-card">
+    <span class="extension-status-icon {% if connected_list %}online{% endif %}" aria-hidden="true">01</span>
+    <div><small>Connection status</small><strong>{{ 'Connected' if connected_list else 'Not connected' }}</strong></div>
+  </article>
+  <article class="card extension-status-card">
+    <span class="extension-status-icon" aria-hidden="true">02</span>
+    <div><small>Connected browsers</small><strong>{{ connected_list|length }}</strong></div>
+  </article>
+  <article class="card extension-status-card">
+    <span class="extension-status-icon" aria-hidden="true">03</span>
+    <div><small>Last sync</small><strong>{{ datetime_label(last_sync_at|default(None), 'Not synced yet') }}</strong></div>
+  </article>
+  <article class="card extension-status-card">
+    <span class="extension-status-icon" aria-hidden="true">04</span>
+    <div><small>Configuration version</small><strong>v{{ configuration.config_version|default(0) if configuration else 0 }}</strong></div>
+  </article>
+</section>
+
+<div class="grid extension-grid extension-management-grid">
+  <section class="card extension-hero-card">
+    <div class="extension-logo" aria-hidden="true">S</div>
+    <div>
+      <div class="eyebrow">Chrome extension</div>
+      <h2>Intentional Shorts, one switch away.</h2>
+      <p>Your active mode, filtering preferences, and schedule are prepared for secure synchronization with Chrome.</p>
+      <div class="extension-actions">
+        {% if extension_install_url|default(None) %}
+          <a class="btn primary" href="{{ extension_install_url }}" target="_blank" rel="noopener">Install extension <span aria-hidden="true">&#8599;</span></a>
+        {% else %}
+          <button class="btn primary" type="button" disabled aria-disabled="true" title="The Chrome Web Store listing is coming soon">Install extension — coming soon</button>
+        {% endif %}
+        <button class="btn secondary" type="button" data-extension-pair-button aria-describedby="pairing-note">
+          {{ 'Connect another browser' if connected_list else 'Connect extension' }}
+        </button>
+      </div>
+      <div class="pairing-feedback" id="pairing-note" data-pairing-feedback role="status" aria-live="polite">
+        <span class="pairing-feedback-dot" aria-hidden="true"></span>
+        <span data-pairing-message>Install the extension, then connect it securely with one click.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card connection-card">
+    <div class="card-heading">
+      <div><h2>Sync snapshot</h2><p>Configuration currently prepared for Chrome.</p></div>
+      <span class="connection-orb {% if connected_list %}online{% endif %}" aria-hidden="true"></span>
+    </div>
+    <dl class="extension-facts">
+      <div><dt>Active mode</dt><dd>{{ active_mode.name|default('No active mode', true) if active_mode else 'No active mode' }}</dd></div>
+      <div><dt>Version</dt><dd>{{ configuration.config_version|default(0) if configuration else 0 }}</dd></div>
+      <div><dt>Sync status</dt><dd>{{ configuration.sync_status|default('Waiting for extension', true)|replace('_', ' ')|title if configuration else 'Waiting for extension' }}</dd></div>
+      <div><dt>Last sync</dt><dd>{{ datetime_label(last_sync_at|default(None), 'Never') }}</dd></div>
+    </dl>
+    {% if connected_list %}
+      <div class="sync-state"><span aria-hidden="true">&#10003;</span><div><b>Connection ready</b><small>New configuration can be requested by an authenticated extension.</small></div></div>
+    {% else %}
+      <div class="sync-state waiting"><span aria-hidden="true">!</span><div><b>Waiting for Chrome</b><small>Your website modes remain available while no extension is connected.</small></div></div>
+    {% endif %}
+  </section>
+</div>
+
+<section class="card extension-devices-card">
+  <div class="card-heading extension-devices-heading">
+    <div><h2>Extension devices</h2><p>Disconnecting a browser immediately revokes the API access tokens issued to it.</p></div>
+    <span class="count-chip">{{ connected_list|length }} connected</span>
+  </div>
+
+  {% if device_list %}
+    <div class="extension-device-list">
+      {% for current_device in device_list %}
+        {% set device_sync_at = current_device.last_sync_at|default(current_device.last_synced_at|default(None)) %}
+        <article class="extension-device-row">
+          <div class="device-icon extension-device-icon" aria-hidden="true">Cr</div>
+          <div class="extension-device-main">
+            <div class="extension-device-title">
+              <h3>{{ current_device.name|default('Chrome browser', true) }}</h3>
+              {% if current_device.is_connected %}<span class="badge success"><span class="status-dot"></span>Connected</span>{% else %}<span class="badge">Disconnected</span>{% endif %}
+            </div>
+            <p>{{ current_device.browser|default('Chrome', true) }}{% if current_device.platform|default(None) %} on {{ current_device.platform }}{% endif %}{% if current_device.extension_version|default(None) %} · Extension {{ current_device.extension_version }}{% endif %}</p>
+            <dl class="extension-device-meta">
+              <div><dt>Last sync</dt><dd>{{ datetime_label(device_sync_at, 'Never') }}</dd></div>
+              <div><dt>Last active</dt><dd>{{ datetime_label(current_device.last_seen_at|default(None), 'Never') }}</dd></div>
+            </dl>
+          </div>
+          <div class="extension-device-action">
+            {% if current_device.is_connected %}
+              <form method="post" action="{% if using_legacy_devices|default(false) %}{{ url_for('devices.revoke_device', device_id=current_device.id, next='extension') }}{% else %}{{ url_for('dashboard.disconnect_extension_device', device_id=current_device.id) }}{% endif %}" data-confirm="Disconnect {{ current_device.name|default('this Chrome browser', true) }}? Its extension access tokens will be revoked.">
+                {{ csrf_input() }}
+                <button class="small danger-outline" type="submit">Disconnect</button>
+              </form>
+            {% else %}
+              <span class="subtle">Access revoked</span>
+            {% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="connection-empty extension-device-empty">
+      <div class="device-icon extension-device-icon" aria-hidden="true">Cr</div>
+      <h3>No extension connected</h3>
+      <p>Install SafeScroll for Chrome, then authorize this browser without entering your password in the extension.</p>
+      <button class="btn secondary" type="button" data-extension-pair-button aria-describedby="empty-pairing-note">Connect extension</button>
+      <small id="empty-pairing-note">The pairing request expires after five minutes and can be used only once.</small>
+    </div>
+  {% endif %}
+</section>
+
+<section class="card setup-card">
+  <div class="card-heading"><div><h2>Installation instructions</h2><p>Install, connect, and let SafeScroll keep your active mode synchronized.</p></div></div>
+  <ol class="setup-steps">
+    <li><span>01</span><div><b>Install</b><small>Add SafeScroll from the Chrome Web Store when published.</small></div></li>
+    <li><span>02</span><div><b>Pin</b><small>Pin SafeScroll from Chrome's Extensions menu for quick access.</small></div></li>
+    <li><span>03</span><div><b>Connect</b><small>Keep this page open and select Connect extension. Chrome receives a single-use pairing request.</small></div></li>
+    <li><span>04</span><div><b>Synchronize</b><small>The extension downloads your active mode now and checks automatically in the background.</small></div></li>
+  </ol>
+</section>
+
+<section class="notice extension-note"><b>Your credentials stay private</b><p>The page displays device and synchronization metadata only. Passwords and raw extension access tokens are never shown or stored here.</p></section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/extension.js') }}" defer></script>{% endblock %}

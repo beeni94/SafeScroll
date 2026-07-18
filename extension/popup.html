@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SafeScroll</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="popup-shell">
+    <header class="popup-header">
+      <div class="brand-mark" aria-hidden="true">S</div>
+      <div class="brand-copy"><strong>SafeScroll</strong><span>Intentional Shorts</span></div>
+      <span class="connection-pill" data-connection-pill>Offline</span>
+    </header>
+
+    <section class="account-panel" data-account-panel>
+      <span class="section-label">Connected account</span>
+      <strong data-account-name>Not connected</strong>
+      <small data-account-email>Connect from your SafeScroll dashboard.</small>
+    </section>
+
+    <section class="mode-panel">
+      <div class="mode-heading">
+        <span class="mode-icon" data-mode-icon aria-hidden="true">—</span>
+        <div><span class="section-label">Active mode</span><strong data-mode-name>No mode synchronized</strong></div>
+      </div>
+      <div class="mode-details">
+        <div><span>Strictness</span><b data-mode-strictness>—</b></div>
+        <div><span>Last sync</span><b data-last-sync>Never</b></div>
+      </div>
+    </section>
+
+    <div class="popup-notice" data-notice role="status" aria-live="polite">Open your dashboard to connect SafeScroll.</div>
+
+    <div class="primary-actions">
+      <button class="button primary" type="button" data-sync-button>Sync now</button>
+      <button class="button secondary" type="button" data-pause-button>Pause filtering</button>
+    </div>
+    <button class="button dashboard-button" type="button" data-dashboard-button>Open dashboard <span aria-hidden="true">↗</span></button>
+    <button class="disconnect-button" type="button" data-disconnect-button hidden>Disconnect this browser</button>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+{% macro field_errors(field) -%}
+  {% if field is defined and field.errors %}
+    <ul class="field-errors" id="{{ field.id }}-errors" role="alert">
+      {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+{%- endmacro %}
+
+{% macro flash_messages() -%}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-stack" aria-live="polite" aria-atomic="true">
+        {% for category, message in messages %}
+          {% set kind = 'danger' if category == 'error' else category if category in ['success', 'danger', 'warning', 'info'] else 'info' %}
+          <div class="flash flash-{{ kind }}" role="{{ 'alert' if kind in ['danger', 'warning'] else 'status' }}">
+            <span class="flash-icon" aria-hidden="true">
+              {% if kind == 'success' %}✓{% elif kind == 'danger' %}!{% elif kind == 'warning' %}⚠{% else %}i{% endif %}
+            </span>
+            <span>{{ message }}</span>
+            <button type="button" class="flash-close" data-dismiss-flash aria-label="Dismiss message">×</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+{%- endmacro %}
+
+{% macro csrf_input() -%}
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+{%- endmacro %}
+
+{% macro empty_state(icon, title, copy, action_url=None, action_label=None) -%}
+  <div class="empty-state">
+    <div class="empty-icon" aria-hidden="true">{{ icon }}</div>
+    <h2>{{ title }}</h2>
+    <p>{{ copy }}</p>
+    {% if action_url and action_label %}<a class="btn primary" href="{{ action_url }}">{{ action_label }}</a>{% endif %}
+  </div>
+{%- endmacro %}
+
+{% macro mode_icon(mode) -%}
+  {{ mode.icon|default('🎯', true) }}
+{%- endmacro %}
+
+{% macro active_mode_badge(active_mode) -%}
+  {% if active_mode is defined and active_mode %}
+    <span class="badge success"><span class="status-dot"></span>{{ active_mode.name|default('Mode', true) }} active</span>
+  {% else %}
+    <span class="badge"><span class="status-dot"></span>No active mode</span>
+  {% endif %}
+{%- endmacro %}
+
+{% macro datetime_label(value, fallback='Never') -%}
+  {% if value %}
+    {% if value.strftime is defined %}{{ value.strftime('%b %d, %Y · %H:%M') }}{% else %}{{ value }}{% endif %}
+  {% else %}{{ fallback }}{% endif %}
+{%- endmacro %}

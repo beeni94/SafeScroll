@@ -1,0 +1,36 @@
+{% extends 'base_public.html' %}
+{% block title %}Privacy · SafeScroll{% endblock %}
+{% block meta_description %}How SafeScroll protects account, mode, device, and filtering data.{% endblock %}
+{% block content %}
+<div class="container">
+  <section class="privacy-hero reveal">
+    <div><div class="eyebrow">Privacy policy</div><h1>Privacy built into SafeScroll.</h1><p>SafeScroll is built around one simple principle: you control your feed—not your data. We process only what is necessary to synchronize modes, personalize filtering, and protect your account.</p><p class="legal-date">Effective date: {{ privacy_effective_date|default('July 18, 2026', true) }}</p></div>
+    <div class="privacy-visual"><div><div class="shield-mark" aria-hidden="true">🛡️</div><h2>Secure. Private. Intentional.</h2><p>Minimum necessary data, transparent controls, and revocable device access.</p></div></div>
+  </section>
+
+  <section class="section"><div class="eyebrow">How we protect your data</div><h2 class="title">Practical safeguards at every layer.</h2><div class="grid privacy-grid">
+    <article class="card"><div class="icon">🔐</div><h3>Secure authentication</h3><p>Hashed passwords, protected sessions, reset flows, and device controls.</p></article>
+    <article class="card"><div class="icon">🧠</div><h3>AI processing</h3><p>Metadata, OCR, and visible frames are used only to make filtering decisions.</p></article>
+    <article class="card"><div class="icon">👤</div><h3>Private preferences</h3><p>Your modes and learning signals belong to your account.</p></article>
+    <article class="card"><div class="icon">💻</div><h3>Connected devices</h3><p>Review, revoke, and disconnect browser access whenever you choose.</p></article>
+  </div></section>
+
+  <section class="section section-contained"><div class="eyebrow">What we store</div><h2 class="title">Only what the product needs.</h2><div class="timeline">
+    <div class="timeline-item"><div class="timeline-dot">1</div><div><b>Account details</b><p>Name, email, password hash, and account status.</p></div></div>
+    <div class="timeline-item"><div class="timeline-dot">2</div><div><b>Modes and preferences</b><p>Preferred topics, blocked categories, schedules, and safety rules.</p></div></div>
+    <div class="timeline-item"><div class="timeline-dot">3</div><div><b>Connected devices</b><p>Device labels, protected identifiers, and last-sync information.</p></div></div>
+    <div class="timeline-item"><div class="timeline-dot">4</div><div><b>Filtering feedback</b><p>Optional relevant or irrelevant feedback used to improve your modes.</p></div></div>
+  </div><div class="notice"><b>Frame storage policy</b><p>Visible video frames are intended to be processed temporarily for classification and not stored permanently.</p></div></section>
+
+  <section class="section"><div class="eyebrow">Your rights</div><h2 class="title">Control stays with you.</h2><div class="grid rights-grid">
+    <article class="card"><h3>⬇ Export data</h3><p>Download your account, mode, and learning information.</p></article>
+    <article class="card"><h3>🗑 Delete account</h3><p>Request permanent deletion of your profile.</p></article>
+    <article class="card"><h3>↻ Reset learning</h3><p>Clear personalized signals for any mode.</p></article>
+    <article class="card"><h3>📱 Remove devices</h3><p>Revoke browser access from your dashboard.</p></article>
+    <article class="card"><h3>🔒 Change password</h3><p>Update credentials and revoke older sessions.</p></article>
+    <article class="card"><h3>✉ Update email</h3><p>Keep your verified contact information current.</p></article>
+  </div></section>
+
+  <section class="section"><div class="promise"><div class="eyebrow">Privacy promise</div><h2>SafeScroll exists to give you more control over what you watch—not to collect more information about you.</h2><p>Questions about privacy or your data? We want the answer to be easy to find.</p><a class="btn secondary" href="{{ url_for('public.contact') }}">Contact us</a></div></section>
+</div>
+{% endblock %}

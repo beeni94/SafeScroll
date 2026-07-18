@@ -1,0 +1,28 @@
+{% extends 'base_auth.html' %}
+{% from 'macros.html' import field_errors %}
+{% block title %}Log in{% endblock %}
+{% block auth_eyebrow %}Welcome back{% endblock %}
+{% block auth_title %}Control your feed without fighting the algorithm.{% endblock %}
+{% block auth_copy %}Your modes, preferences, and connected devices stay securely synchronized.{% endblock %}
+{% block content %}
+<form class="form" method="post" action="{{ url_for('auth.login', next=request.args.get('next')) }}" novalidate>
+  {{ form.hidden_tag() }}
+  <div class="form-heading"><div class="eyebrow">Secure access</div><h1>Log in</h1><p>Access your SafeScroll dashboard.</p></div>
+  <div class="group">
+    {{ form.email.label(class_='label') }}
+    {{ form.email(class_='input', autocomplete='email', inputmode='email', placeholder='you@example.com', autofocus=true, **{'aria-describedby': 'email-errors' if form.email.errors else ''}) }}
+    {{ field_errors(form.email) }}
+  </div>
+  <div class="group">
+    {{ form.password.label(class_='label') }}
+    <div class="password-wrap">{{ form.password(class_='input', autocomplete='current-password', placeholder='Your password', **{'aria-describedby': 'password-errors' if form.password.errors else ''}) }}<button class="eye-btn" type="button" data-password-toggle aria-label="Show password"><span aria-hidden="true">👁</span></button></div>
+    {{ field_errors(form.password) }}
+  </div>
+  <div class="form-options">
+    <label class="check-control">{{ form.remember_me() }}<span>{{ form.remember_me.label.text }}</span></label>
+    <a class="text-link" href="{{ url_for('auth.forgot_password') }}">Forgot password?</a>
+  </div>
+  {{ form.submit(class_='btn primary btn-block') }}
+  <p class="form-switch">No account? <a href="{{ url_for('auth.register') }}">Create one</a></p>
+</form>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base_dashboard.html' %}
+{% from 'macros.html' import empty_state %}
+{% block title %}Analytics{% endblock %}
+{% block page_label %}Analytics{% endblock %}
+{% block content %}
+{% set metric_data = totals|default(metrics|default({}, true), true) %}
+{% set activity = weekly_stats if weekly_stats is defined else weekly_activity|default([], true) %}
+{% set categories = top_categories|default([], true) %}
+{% set max_activity = (activity|map(attribute='filtered')|max)|default(0, true) or 1 %}
+{% set category_total = categories|sum(attribute='count') if categories else 0 %}
+<header class="page-heading"><div><div class="eyebrow">Viewing insights</div><h1>Analytics</h1><p>Understand how your active mode changes the Shorts you see.</p></div><div class="date-chip">Last 7 days</div></header>
+
+<section class="grid kpis analytics-kpis">
+  <article class="card metric-card"><p>Relevant Shorts</p><div class="kpi">{{ metric_data.get('relevant_shorts', metric_data.get('relevant', 0)) }}</div><span class="subtle">Kept in your feed</span></article>
+  <article class="card metric-card"><p>Filtered Shorts</p><div class="kpi">{{ metric_data.get('filtered_shorts', metric_data.get('filtered', 0)) }}</div><span class="subtle">Skipped for this mode</span></article>
+  <article class="card metric-card"><p>Estimated time saved</p><div class="kpi">{{ metric_data.get('time_saved_label', '0 min') }}</div><span class="subtle">Based on average Short length</span></article>
+  <article class="card metric-card"><p>Learning accuracy</p><div class="kpi">{{ metric_data.get('learning_accuracy_label', (metric_data.get('learning_accuracy', 0)|string) ~ '%') }}</div><span class="subtle">Improves with your feedback</span></article>
+</section>
+
+{% if activity or categories %}
+<div class="grid dashboard-panels analytics-panels">
+  <section class="card panel-card"><div class="card-heading"><div><h2>Weekly trend</h2><p>Relevant and filtered decisions by day.</p></div></div>{% if activity %}<div class="bar-chart tall" role="img" aria-label="Weekly content decisions">{% for item in activity %}{% set amount = item.filtered|default(item.count|default(item.value|default(0))) %}{% set percent = item.percent|default(item.percentage|default((amount * 100 / max_activity)|round|int)) %}<div class="bar-column"><span class="bar-value">{{ amount }}</span><div class="bar-track"><i style="--bar-height: {{ percent|int }}%"></i></div><small>{{ item.day|default(item.label|default('—')) }}</small></div>{% endfor %}</div>{% else %}<div class="chart-empty"><div class="chart-placeholder"></div><p>No weekly activity yet.</p></div>{% endif %}</section>
+  <section class="card panel-card"><div class="card-heading"><div><h2>Top categories</h2><p>Topics most often kept by your mode.</p></div></div>{% if categories %}<div class="category-list">{% for category in categories %}{% set category_percent = category.percent|default(category.percentage|default(((category.count|default(0)) * 100 / category_total)|round|int if category_total else 0)) %}<div><span><b>{{ category.name|default(category.label|default('Other')) }}</b><small>{{ category.count|default('') }}</small></span><div class="progress"><i style="--progress: {{ category_percent|int }}%"></i></div><strong>{{ category_percent }}%</strong></div>{% endfor %}</div>{% else %}<p class="muted panel-empty-copy">Category insights appear after SafeScroll has enough activity.</p>{% endif %}</section>
+</div>
+{% else %}
+  {{ empty_state('📊', 'Your analytics are ready when you are', 'Connect the extension and browse with an active mode. Your private activity summary will appear here.', url_for('dashboard.extension'), 'Set up the extension') }}
+{% endif %}
+<p class="privacy-footnote">🔒 Analytics summarize SafeScroll decisions for your account. They do not expose your viewing history publicly.</p>
+{% endblock %}

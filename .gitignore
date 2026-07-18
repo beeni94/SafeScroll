@@ -1,0 +1,29 @@
+# Local configuration and credentials
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.tools/
+.uv-cache/
+.python/
+
+# Flask / SQLite runtime data
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Tests and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

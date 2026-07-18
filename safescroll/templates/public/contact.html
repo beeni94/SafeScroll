@@ -1,0 +1,18 @@
+{% extends 'base_public.html' %}
+{% from 'macros.html' import field_errors, csrf_input %}
+{% block title %}Contact · SafeScroll{% endblock %}
+{% block content %}
+<div class="container legal-wrap">
+  <header class="legal-header"><div class="eyebrow">Contact</div><h1>Let’s talk about SafeScroll.</h1><p>Use this form for product, privacy, partnership, or extension-support questions.</p></header>
+  <div class="contact-grid">
+    <section class="contact-aside"><div class="card"><h2>How can we help?</h2><ul class="check-list"><li>Product feedback</li><li>Privacy questions</li><li>Research collaboration</li><li>Chrome extension support</li><li>Startup and partnership discussions</li></ul></div><div class="notice"><b>Account security issue?</b><p>Change your password and revoke unfamiliar sessions from the Security page first.</p></div></section>
+    <form class="card contact-form" method="post" action="{{ url_for('public.contact') }}" novalidate>
+      {% if form is defined %}{{ form.hidden_tag() }}{% else %}{{ csrf_input() }}{% endif %}
+      <div class="group"><label class="label" for="name">Name</label>{% if form is defined and form.name is defined %}{{ form.name(class_='input', autocomplete='name', placeholder='Your name', **{'aria-describedby': 'name-errors' if form.name.errors else ''}) }}{{ field_errors(form.name) }}{% else %}<input class="input" id="name" name="name" autocomplete="name" required>{% endif %}</div>
+      <div class="group"><label class="label" for="email">Email</label>{% if form is defined and form.email is defined %}{{ form.email(class_='input', autocomplete='email', placeholder='you@example.com', **{'aria-describedby': 'email-errors' if form.email.errors else ''}) }}{{ field_errors(form.email) }}{% else %}<input class="input" id="email" name="email" type="email" autocomplete="email" required>{% endif %}</div>
+      <div class="group"><label class="label" for="message">Message</label>{% if form is defined and form.message is defined %}{{ form.message(class_='textarea', rows='7', placeholder='How can we help?', **{'aria-describedby': 'message-errors' if form.message.errors else ''}) }}{{ field_errors(form.message) }}{% else %}<textarea class="textarea" id="message" name="message" rows="7" required></textarea>{% endif %}</div>
+      <button class="btn primary" type="submit">Send message</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base_dashboard.html' %}
+{% from 'macros.html' import csrf_input, empty_state, datetime_label %}
+{% block title %}Devices{% endblock %}
+{% block page_label %}Devices{% endblock %}
+{% block content %}
+{% set device_list = devices|default([], true) %}
+<header class="page-heading"><div><div class="eyebrow">Connected access</div><h1>Devices</h1><p>Review browsers and extension connections authorized for your SafeScroll account.</p></div><span class="count-chip">{{ device_list|length }} {{ 'device' if device_list|length == 1 else 'devices' }}</span></header>
+
+{% if device_list %}
+<section class="card table-card">
+  <div class="table-wrap"><table><thead><tr><th scope="col">Device</th><th scope="col">Status</th><th scope="col">Last active</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>
+    {% for device in device_list %}
+    <tr>
+      <td><div class="table-device"><span class="device-icon" aria-hidden="true">{% if 'android' in device.platform|default('')|lower or 'mobile' in device.device_type|default('')|lower %}📱{% else %}💻{% endif %}</span><span><b>{{ device.name|default(device.device_name|default('Connected browser', true), true) }}</b><small>{{ device.browser|default('Chrome', true) }}{% if device.platform|default(None) %} on {{ device.platform }}{% endif %}</small></span></div></td>
+      <td>{% if device.is_active|default(device.is_connected|default(false)) %}<span class="badge success"><span class="status-dot"></span>Connected</span>{% else %}<span class="badge">Disconnected</span>{% endif %}</td>
+      <td><span>{{ datetime_label(device.last_seen_at|default(None)) }}</span>{% if device.created_at|default(None) %}<small>Added {{ datetime_label(device.created_at) }}</small>{% endif %}</td>
+      <td><div class="table-actions">{% if device.is_active|default(device.is_connected|default(false)) %}<form method="post" action="{{ url_for('devices.revoke_device', device_id=device.id) }}" data-confirm="Revoke this device? The extension will need to reconnect.">{% if action_form is defined %}{{ action_form.hidden_tag() }}{% else %}{{ csrf_input() }}{% endif %}<button class="small danger-outline" type="submit">Revoke</button></form>{% else %}<form method="post" action="{{ url_for('devices.remove_device', device_id=device.id) }}" data-confirm="Remove this device from your account?">{% if action_form is defined %}{{ action_form.hidden_tag() }}{% else %}{{ csrf_input() }}{% endif %}<button class="small" type="submit">Remove</button></form>{% endif %}</div></td>
+    </tr>
+    {% endfor %}
+  </tbody></table></div>
+</section>
+<div class="notice"><b>Don’t recognize a device?</b><p>Revoke it now, then change your password from Security. Revoked clients must authenticate again before accessing or syncing modes.</p></div>
+{% else %}
+  {{ empty_state('💻', 'No connected devices', 'Install the Chrome extension and sign in to connect your first browser.', url_for('dashboard.extension'), 'View extension setup') }}
+{% endif %}
+{% endblock %}

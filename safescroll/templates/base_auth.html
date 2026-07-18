@@ -1,0 +1,35 @@
+{% from 'macros.html' import flash_messages %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07111f">
+  <title>{% block title %}Account{% endblock %} · SafeScroll</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="auth-body">
+  <a class="skip-link" href="#main-content">Skip to form</a>
+  <div class="auth">
+    <section class="visual" aria-label="About SafeScroll">
+      <a class="brand" href="{{ url_for('public.home') }}"><span class="logo" aria-hidden="true">S</span><span>SafeScroll</span></a>
+      <div class="auth-pitch">
+        <div class="eyebrow">{% block auth_eyebrow %}Intentional viewing{% endblock %}</div>
+        <h1>{% block auth_title %}Your feed, shaped around what matters.{% endblock %}</h1>
+        <p>{% block auth_copy %}Build personal modes and carry them securely across every connected browser.{% endblock %}</p>
+        <div class="auth-proof"><span>✓ Private by design</span><span>✓ Synced modes</span><span>✓ Secure account</span></div>
+      </div>
+      <p class="muted">Your feed. Your rules. Powered by AI.</p>
+    </section>
+    <main class="formwrap" id="main-content">
+      <div class="form-panel">
+        <a class="mobile-auth-brand brand" href="{{ url_for('public.home') }}"><span class="logo" aria-hidden="true">S</span><span>SafeScroll</span></a>
+        {{ flash_messages() }}
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

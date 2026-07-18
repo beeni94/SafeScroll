@@ -1,0 +1,60 @@
+{% from 'macros.html' import flash_messages, csrf_input, active_mode_badge %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08121f">
+  <title>{% block title %}Dashboard{% endblock %} · SafeScroll</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="app-body">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  {% set endpoint = request.endpoint|default('', true) %}
+  <div class="shell">
+    <aside class="side" id="dashboard-sidebar" data-dashboard-sidebar aria-label="Dashboard navigation">
+      <div class="side-head">
+        <a class="brand" href="{{ url_for('dashboard.index') }}"><span class="logo" aria-hidden="true">S</span><span>SafeScroll</span></a>
+        <button class="icon-btn side-close" type="button" data-sidebar-close aria-label="Close navigation">×</button>
+      </div>
+      <nav class="menu">
+        <a href="{{ url_for('dashboard.index') }}" {% if endpoint == 'dashboard.index' %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">▦</span>Dashboard</a>
+        <a href="{{ url_for('modes.list_modes') }}" {% if endpoint.startswith('modes.') %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">◉</span>My Modes</a>
+        <a href="{{ url_for('dashboard.analytics') }}" {% if endpoint == 'dashboard.analytics' %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">↗</span>Analytics</a>
+        <a href="{{ url_for('dashboard.extension') }}" {% if endpoint == 'dashboard.extension' %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">▣</span>Extension</a>
+        <a href="{{ url_for('devices.list_devices') }}" {% if endpoint.startswith('devices.') %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">▤</span>Devices</a>
+        <a href="{{ url_for('account.security') }}" {% if endpoint in ['account.security', 'account.change_password', 'account.revoke_session', 'account.revoke_other_sessions'] %}class="active" aria-current="page"{% endif %}><span aria-hidden="true">◇</span>Security</a>
+      </nav>
+      <div class="side-account">
+        <a class="account-link {% if endpoint == 'account.profile' %}active{% endif %}" href="{{ url_for('account.profile') }}">
+          <span class="avatar" aria-hidden="true">{{ (current_user.full_name|default(current_user.name|default(current_user.email|default('U'), true), true))[0]|upper }}</span>
+          <span><strong>{{ current_user.full_name|default(current_user.name|default('Your profile', true), true) }}</strong><small>{{ current_user.email|default('', true) }}</small></span>
+        </a>
+        <form method="post" action="{{ url_for('auth.logout') }}" class="logout-form">
+          {{ csrf_input() }}
+          <button type="submit" class="menu-action"><span aria-hidden="true">↪</span>Log out</button>
+        </form>
+      </div>
+    </aside>
+    <button class="sidebar-backdrop" type="button" data-sidebar-backdrop aria-label="Close navigation"></button>
+
+    <div class="main">
+      <header class="top">
+        <div class="top-title">
+          <button class="icon-btn mobile-nav-toggle" type="button" data-sidebar-toggle aria-controls="dashboard-sidebar" aria-expanded="false" aria-label="Open navigation"><span></span><span></span><span></span></button>
+          <div><small>SafeScroll</small><strong>{% block page_label %}Dashboard{% endblock %}</strong></div>
+        </div>
+        <div class="top-actions">
+          {{ active_mode_badge(active_mode) }}
+          <a class="avatar top-avatar" href="{{ url_for('account.profile') }}" aria-label="Open profile">{{ (current_user.full_name|default(current_user.name|default(current_user.email|default('U'), true), true))[0]|upper }}</a>
+        </div>
+      </header>
+      <div class="page-flashes">{{ flash_messages() }}</div>
+      <main class="page" id="main-content">{% block content %}{% endblock %}</main>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

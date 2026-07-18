@@ -1,0 +1,36 @@
+{% extends 'base_auth.html' %}
+{% from 'macros.html' import field_errors %}
+{% block title %}Create account{% endblock %}
+{% block auth_eyebrow %}Start with intention{% endblock %}
+{% block auth_title %}Build personalized feeds for every part of your day.{% endblock %}
+{% block auth_copy %}Create your modes once, then carry them into YouTube Shorts with one secure connection.{% endblock %}
+{% block content %}
+<form class="form" id="register-form" method="post" action="{{ url_for('auth.register') }}" novalidate>
+  {{ form.hidden_tag() }}
+  <div class="form-heading"><div class="eyebrow">Join SafeScroll</div><h1>Create account</h1><p>Your preferences stay private and editable.</p></div>
+  <div class="group">
+    {{ form.full_name.label(class_='label') }}
+    {{ form.full_name(class_='input', autocomplete='name', placeholder='Your full name', autofocus=true, **{'aria-describedby': 'full_name-errors' if form.full_name.errors else ''}) }}
+    {{ field_errors(form.full_name) }}
+  </div>
+  <div class="group">
+    {{ form.email.label(class_='label') }}
+    {{ form.email(class_='input', autocomplete='email', inputmode='email', placeholder='you@example.com', **{'aria-describedby': 'email-errors' if form.email.errors else ''}) }}
+    {{ field_errors(form.email) }}
+  </div>
+  <div class="group">
+    {{ form.password.label(class_='label') }}
+    <div class="password-wrap">{{ form.password(class_='input', autocomplete='new-password', placeholder='Create a strong password', data_strength_input='true', **{'aria-describedby': 'password-errors password-strength-text' if form.password.errors else 'password-strength-text'}) }}<button class="eye-btn" type="button" data-password-toggle aria-label="Show password"><span aria-hidden="true">👁</span></button></div>
+    {{ field_errors(form.password) }}
+  </div>
+  <div class="strength" aria-live="polite"><div class="strength-track"><div class="strength-fill" data-strength-fill></div></div><p id="password-strength-text" data-strength-text>Password strength</p></div>
+  <div class="password-rules" aria-label="Password requirements"><span data-rule="length">8+ characters</span><span data-rule="upper">Uppercase</span><span data-rule="lower">Lowercase</span><span data-rule="number">Number</span><span data-rule="symbol">Symbol</span></div>
+  <div class="group">
+    {{ form.confirm_password.label(class_='label') }}
+    <div class="password-wrap">{{ form.confirm_password(class_='input', autocomplete='new-password', placeholder='Repeat your password', **{'aria-describedby': 'confirm_password-errors' if form.confirm_password.errors else ''}) }}<button class="eye-btn" type="button" data-password-toggle aria-label="Show password"><span aria-hidden="true">👁</span></button></div>
+    {{ field_errors(form.confirm_password) }}
+  </div>
+  {{ form.submit(class_='btn primary btn-block') }}
+  <p class="form-switch">Already registered? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+</form>
+{% endblock %}

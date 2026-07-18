@@ -1,0 +1,196 @@
+{% extends 'base_dashboard.html' %}
+{% from 'macros.html' import field_errors %}
+{% set editing = mode is defined and mode %}
+{% set strictness_value = form.strictness.data|default(3, true)|int %}
+{% set strictness_labels = {
+  1: 'Very flexible',
+  2: 'Flexible',
+  3: 'Balanced',
+  4: 'Strict',
+  5: 'Very strict'
+} %}
+{% block title %}{{ 'Edit mode' if editing else 'Create mode' }}{% endblock %}
+{% block page_label %}Mode Builder{% endblock %}
+{% block content %}
+<header class="page-heading">
+  <div>
+    <a class="back-link app-back" href="{{ url_for('modes.list_modes') }}">&larr; Back to modes</a>
+    <div class="eyebrow">Mode builder</div>
+    <h1>{{ 'Edit ' ~ mode.name if editing else 'Create a mode' }}</h1>
+    <p>Define what belongs in this feed and when its rules should apply.</p>
+  </div>
+</header>
+
+<form class="mode-form" method="post" novalidate>
+  {{ form.hidden_tag() }}
+  <nav class="builder-progress" aria-label="Mode sections">
+    <a href="#general" class="active"><span>1</span>General</a>
+    <a href="#preferences"><span>2</span>Preferences</a>
+    <a href="#safety"><span>3</span>Safety</a>
+    <a href="#schedule"><span>4</span>Schedule</a>
+    <a href="#review"><span>5</span>Save</a>
+  </nav>
+
+  <div class="builder-layout">
+    <aside class="builder-nav" aria-label="Mode form navigation">
+      <a href="#general" class="active">General</a>
+      <a href="#preferences">Preferences</a>
+      <a href="#safety">Safety</a>
+      <a href="#schedule">Schedule</a>
+    </aside>
+
+    <div class="builder-content">
+      <section class="card form-section" id="general">
+        <div class="section-number">01</div>
+        <div class="card-heading">
+          <div><h2>General settings</h2><p>Give this mode a clear name and visual identity.</p></div>
+        </div>
+        <div class="grid form-two">
+          <div class="group">
+            {{ form.name.label(class_='label') }}
+            {{ form.name(class_='input', placeholder='Study Mode', autofocus=true, **{'aria-describedby': 'name-errors' if form.name.errors else ''}) }}
+            {{ field_errors(form.name) }}
+          </div>
+          <div class="group">
+            {{ form.icon.label(class_='label') }}
+            {{ form.icon(class_='input icon-input', placeholder='Book emoji', maxlength='16', **{'aria-describedby': 'icon-errors icon-help' if form.icon.errors else 'icon-help'}) }}
+            {{ field_errors(form.icon) }}
+            <small class="field-help" id="icon-help">Optional. Leave blank to use the SafeScroll target icon.</small>
+          </div>
+        </div>
+        {% set color_describedby = 'color-help' ~ (' color-errors' if form.color.errors else '') %}
+        <fieldset class="group color-picker" aria-describedby="{{ color_describedby }}">
+          <legend class="label">{{ form.color.label.text }}</legend>
+          <div class="color-palette" role="radiogroup">
+            {% for option in form.color %}
+              <label class="color-option" style="--swatch-color: {{ option.data }}" title="{{ option.label.text }}">
+                {{ option(class_='color-radio', **{'aria-describedby': color_describedby, 'aria-invalid': 'true' if form.color.errors else 'false'}) }}
+                <span class="color-swatch" aria-hidden="true"></span>
+                <span>{{ option.label.text }}</span>
+              </label>
+            {% endfor %}
+          </div>
+          {{ field_errors(form.color) }}
+          <small class="field-help" id="color-help">Used as a visual accent in your mode list and dashboard.</small>
+        </fieldset>
+        <div class="group">
+          {{ form.description.label(class_='label') }}
+          {{ form.description(class_='textarea', rows='4', placeholder='When and why you use this mode...', **{'aria-describedby': 'description-errors' if form.description.errors else ''}) }}
+          {{ field_errors(form.description) }}
+        </div>
+      </section>
+
+      <section class="card form-section" id="preferences">
+        <div class="section-number">02</div>
+        <div class="card-heading">
+          <div><h2>Content preferences</h2><p>Enter one item per line or separate items with commas.</p></div>
+        </div>
+        <div class="grid form-two">
+          <div class="preference-panel preferred">
+            <div class="preference-title"><span>+</span><div><h3>Preferred content</h3><p>Topics SafeScroll should prioritize.</p></div></div>
+            <div class="group">
+              {{ form.preferred_categories.label(class_='label') }}
+              {{ form.preferred_categories(class_='textarea', rows='5', placeholder='Python\nArtificial intelligence\nEducation', **{'aria-describedby': 'preferred_categories-errors' if form.preferred_categories.errors else ''}) }}
+              {{ field_errors(form.preferred_categories) }}
+            </div>
+            <div class="group">
+              {{ form.preferred_keywords.label(class_='label') }}
+              {{ form.preferred_keywords(class_='textarea', rows='4', placeholder='tutorial, lecture, explained', **{'aria-describedby': 'preferred_keywords-errors' if form.preferred_keywords.errors else ''}) }}
+              {{ field_errors(form.preferred_keywords) }}
+            </div>
+          </div>
+          <div class="preference-panel blocked-panel">
+            <div class="preference-title"><span>&minus;</span><div><h3>Blocked content</h3><p>Topics SafeScroll should filter.</p></div></div>
+            <div class="group">
+              {{ form.blocked_categories.label(class_='label') }}
+              {{ form.blocked_categories(class_='textarea', rows='5', placeholder='Music\nGaming\nPranks', **{'aria-describedby': 'blocked_categories-errors' if form.blocked_categories.errors else ''}) }}
+              {{ field_errors(form.blocked_categories) }}
+            </div>
+            <div class="group">
+              {{ form.blocked_keywords.label(class_='label') }}
+              {{ form.blocked_keywords(class_='textarea', rows='4', placeholder='dance challenge, reaction', **{'aria-describedby': 'blocked_keywords-errors' if form.blocked_keywords.errors else ''}) }}
+              {{ field_errors(form.blocked_keywords) }}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card form-section" id="safety">
+        <div class="section-number">03</div>
+        <div class="card-heading">
+          <div><h2>Strictness and protection</h2><p>Control how cautiously SafeScroll handles uncertain content.</p></div>
+        </div>
+        <div class="group strictness-control">
+          <div class="strictness-heading">
+            {{ form.strictness.label(class_='label') }}
+            <output class="strictness-output" for="{{ form.strictness.id }}" data-strictness-output aria-live="polite">
+              <b data-strictness-label>{{ strictness_labels.get(strictness_value, 'Balanced') }}</b>
+              <span><span data-strictness-value>{{ strictness_value }}</span>/5</span>
+            </output>
+          </div>
+          {{ form.strictness(class_='strictness-range', min='1', max='5', step='1', **{'data-strictness-range': '', 'aria-describedby': 'strictness-help' ~ (' strictness-errors' if form.strictness.errors else ''), 'aria-valuetext': strictness_labels.get(strictness_value, 'Balanced')}) }}
+          <div class="range-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+          {{ field_errors(form.strictness) }}
+          <small class="field-help" id="strictness-help">Balanced works well for most modes. Stricter settings filter more uncertain Shorts.</small>
+        </div>
+        <div class="protected-setting">
+          <label class="switch-control">
+            {{ form.is_protected() }}
+            <span class="switch-ui" aria-hidden="true"></span>
+            <span><b>{{ form.is_protected.label.text }}</b><small>Require a PIN before this mode can be edited, duplicated, deleted, or switched.</small></span>
+          </label>
+          <div class="group pin-field" data-protection-pin>
+            {{ form.protection_pin.label(class_='label') }}
+            {{ form.protection_pin(class_='input', inputmode='numeric', autocomplete='off', maxlength='8', placeholder='4-8 digits', **{'aria-describedby': 'protection_pin-errors pin-help' if form.protection_pin.errors else 'pin-help'}) }}
+            {{ field_errors(form.protection_pin) }}
+            <small class="field-help" id="pin-help">{% if editing and mode.is_protected %}Leave blank to keep the existing PIN.{% else %}Use digits only. Do not reuse your account password.{% endif %}</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="card form-section" id="schedule">
+        <div class="section-number">04</div>
+        <div class="card-heading">
+          <div><h2>Optional schedule</h2><p>Store the days and time window when this mode should apply.</p></div>
+        </div>
+        {% set schedule_describedby = 'schedule-help' ~ (' schedule_days-errors' if form.schedule_days.errors else '') %}
+        <fieldset class="group schedule-days" aria-describedby="{{ schedule_describedby }}">
+          <legend class="label">{{ form.schedule_days.label.text }}</legend>
+          <div class="day-options">
+            {% set selected_days = form.schedule_days.data|default([], true) %}
+            {% for value, label in form.schedule_days.choices %}
+              <label class="day-option" for="schedule-day-{{ value }}">
+                <input id="schedule-day-{{ value }}" type="checkbox" name="{{ form.schedule_days.name }}" value="{{ value }}" {% if value in selected_days %}checked{% endif %} data-schedule-day aria-describedby="{{ schedule_describedby }}" aria-invalid="{{ 'true' if form.schedule_days.errors else 'false' }}">
+                <span>{{ label[:3] }}</span>
+              </label>
+            {% endfor %}
+          </div>
+          {{ field_errors(form.schedule_days) }}
+          <small class="field-help" id="schedule-help">Select at least one day when you add a time window. Scheduling is stored now for extension automation in a future sprint.</small>
+        </fieldset>
+        <div class="grid form-two schedule-time-grid">
+          <div class="group">
+            {{ form.schedule_start.label(class_='label') }}
+            {{ form.schedule_start(class_='input', **{'data-schedule-start': '', 'aria-describedby': 'schedule_start-errors' if form.schedule_start.errors else ''}) }}
+            {{ field_errors(form.schedule_start) }}
+          </div>
+          <div class="group">
+            {{ form.schedule_end.label(class_='label') }}
+            {{ form.schedule_end(class_='input', **{'data-schedule-end': '', 'aria-describedby': 'schedule_end-errors' if form.schedule_end.errors else ''}) }}
+            {{ field_errors(form.schedule_end) }}
+          </div>
+        </div>
+        <div class="schedule-preview" data-schedule-preview role="status" aria-live="polite">
+          <span class="schedule-preview-icon" aria-hidden="true">&#128337;</span>
+          <div><b data-schedule-summary>No schedule set</b><small>Without a schedule, you can activate this mode at any time.</small></div>
+        </div>
+      </section>
+
+      <section class="form-save" id="review">
+        <div><b>Ready to {{ 'update' if editing else 'create' }} this mode?</b><p>You can change every setting later.</p></div>
+        <div class="form-actions"><a class="btn secondary" href="{{ url_for('modes.list_modes') }}">Cancel</a>{{ form.submit(class_='btn primary') }}</div>
+      </section>
+    </div>
+  </div>
+</form>
+{% endblock %}

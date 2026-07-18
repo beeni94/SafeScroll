@@ -1,0 +1,28 @@
+{% extends 'base_dashboard.html' %}
+{% from 'macros.html' import field_errors, datetime_label %}
+{% block title %}Profile{% endblock %}
+{% block page_label %}Profile{% endblock %}
+{% block content %}
+<header class="page-heading"><div><div class="eyebrow">Your account</div><h1>Profile</h1><p>Keep your identity and regional preferences up to date.</p></div><a class="btn secondary" href="{{ url_for('account.export_data') }}">Export my data</a></header>
+
+<div class="grid account-grid">
+  <section class="card profile-summary">
+    <div class="profile-avatar" aria-hidden="true">{{ (current_user.full_name|default(current_user.name|default(current_user.email|default('U'), true), true))[0]|upper }}</div>
+    <h2>{{ current_user.full_name|default(current_user.name|default('SafeScroll user', true), true) }}</h2>
+    <p>{{ current_user.email|default('', true) }}</p>
+    <div class="profile-badges">{% if current_user.email_verified|default(current_user.is_verified|default(false)) %}<span class="badge success">✓ Email verified</span>{% else %}<span class="badge warning">Email not verified</span>{% endif %}<span class="badge">Member</span></div>
+    <dl class="profile-facts"><div><dt>Member since</dt><dd>{{ datetime_label(current_user.created_at|default(None), 'Recently') }}</dd></div><div><dt>Active mode</dt><dd>{{ active_mode.name|default('None selected', true) if active_mode else 'None selected' }}</dd></div><div><dt>Timezone</dt><dd>{{ current_user.timezone|default('Not set', true) }}</dd></div></dl>
+  </section>
+
+  <form class="card profile-form" method="post" action="{{ url_for('account.profile') }}" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="card-heading"><div><h2>Personal information</h2><p>Used for account communication and dashboard personalization.</p></div></div>
+    <div class="group">{{ form.full_name.label(class_='label') }}{{ form.full_name(class_='input', autocomplete='name', **{'aria-describedby': 'full_name-errors' if form.full_name.errors else ''}) }}{{ field_errors(form.full_name) }}</div>
+    <div class="group">{{ form.email.label(class_='label') }}{{ form.email(class_='input', autocomplete='email', inputmode='email', **{'aria-describedby': 'email-errors email-help' if form.email.errors else 'email-help'}) }}{{ field_errors(form.email) }}<small class="field-help" id="email-help">Changing your email may require verification before sensitive actions.</small></div>
+    <div class="group">{{ form.timezone.label(class_='label') }}{{ form.timezone(class_='select', **{'aria-describedby': 'timezone-errors timezone-help' if form.timezone.errors else 'timezone-help'}) }}{{ field_errors(form.timezone) }}<small class="field-help" id="timezone-help">Schedules and dashboard greetings use this timezone.</small></div>
+    <div class="form-actions"><span class="subtle">Changes apply across connected devices.</span>{{ form.submit(class_='btn primary') }}</div>
+  </form>
+</div>
+
+<section class="card data-card"><div><div class="eyebrow">Your data</div><h2>Portable and under your control.</h2><p>Download a copy of your account, modes, connected-device metadata, and SafeScroll activity.</p></div><a class="btn secondary" href="{{ url_for('account.export_data') }}">Download export</a></section>
+{% endblock %}

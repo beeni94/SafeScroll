@@ -1,0 +1,22 @@
+{% extends 'base_dashboard.html' %}
+{% from 'macros.html' import field_errors %}
+{% block title %}Unlock {{ mode.name }}{% endblock %}
+{% block page_label %}Protected Mode{% endblock %}
+{% block content %}
+<section class="unlock-wrap">
+  <a class="back-link app-back" href="{{ url_for('modes.list_modes') }}">← Back to modes</a>
+  <form class="card unlock-card" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="danger-symbol lock-symbol" aria-hidden="true">🔒</div>
+    <div class="eyebrow">Protected mode</div>
+    <h1>Unlock {{ mode.name }}</h1>
+    <p>Enter this mode’s protection PIN to {{ {'edit': 'edit it', 'activate': 'activate it', 'duplicate': 'duplicate it', 'delete': 'delete it'}.get(action, 'continue') }}.</p>
+    <div class="group">
+      {{ form.pin.label(class_='label') }}
+      <div class="password-wrap">{{ form.pin(class_='input', inputmode='numeric', autocomplete='off', autofocus=true, maxlength='8', **{'aria-describedby': 'pin-errors' if form.pin.errors else ''}) }}<button class="eye-btn dark-eye" type="button" data-password-toggle aria-label="Show PIN"><span aria-hidden="true">👁</span></button></div>
+      {{ field_errors(form.pin) }}
+    </div>
+    <div class="form-actions"><a class="btn secondary" href="{{ url_for('modes.list_modes') }}">Cancel</a>{{ form.submit(class_='btn primary') }}</div>
+  </form>
+</section>
+{% endblock %}

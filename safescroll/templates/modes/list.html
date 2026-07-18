@@ -1,0 +1,106 @@
+{% extends 'base_dashboard.html' %}
+{% from 'macros.html' import csrf_input, empty_state, mode_icon %}
+{% block title %}My Modes{% endblock %}
+{% block page_label %}My Modes{% endblock %}
+{% block content %}
+{% set mode_list = modes|default([], true) %}
+{% set day_names = {'mon': 'Mon', 'tue': 'Tue', 'wed': 'Wed', 'thu': 'Thu', 'fri': 'Fri', 'sat': 'Sat', 'sun': 'Sun'} %}
+{% set strictness_labels = {1: 'Very flexible', 2: 'Flexible', 3: 'Balanced', 4: 'Strict', 5: 'Very strict'} %}
+<header class="page-heading">
+  <div>
+    <div class="eyebrow">Feed profiles</div>
+    <h1>My Modes</h1>
+    <p>Create focused feeds, schedule when they apply, and switch your active mode in one click.</p>
+  </div>
+  <a class="btn primary" href="{{ url_for('modes.create_mode') }}">+ Create mode</a>
+</header>
+
+{% if mode_list %}
+<section class="mode-list-summary" aria-label="Mode summary">
+  <div><span>Total modes</span><b>{{ mode_list|length }}</b></div>
+  <div><span>Active mode</span><b>{{ active_mode.name if active_mode else 'None selected' }}</b></div>
+  <p>Only one mode can be active at a time. Activating another mode switches your feed immediately.</p>
+</section>
+
+<div class="grid modes-grid">
+  {% for mode in mode_list %}
+    {% set schedule = mode.schedule|default({}, true) %}
+    {% set schedule_days = schedule.get('days', []) if schedule else [] %}
+    {% set schedule_start = schedule.get('start') if schedule else none %}
+    {% set schedule_end = schedule.get('end') if schedule else none %}
+    <article class="card mode-card{% if mode.is_active %} active-mode-card{% endif %}" data-mode-color="{{ mode.color|default('#14b8a6', true) }}">
+      <div class="mode-card-head">
+        <div class="mode-symbol large" aria-hidden="true">{{ mode_icon(mode) }}</div>
+        <div class="grow">
+          <div class="mode-title">
+            <h2>{{ mode.name|default('Untitled mode', true) }}</h2>
+            {% if mode.is_active %}<span class="badge success"><span class="status-dot"></span>Active</span>{% endif %}
+          </div>
+          <p>{{ mode.description|default('A custom SafeScroll viewing mode.', true) }}</p>
+        </div>
+      </div>
+
+      <div class="mode-detail">
+        <span class="detail-label">Preferred categories</span>
+        <div class="chips">
+          {% for category in mode.preferred_categories|default([], true) %}<span class="chip on">{{ category }}</span>
+          {% else %}<span class="empty-inline">No preferred categories</span>{% endfor %}
+        </div>
+      </div>
+      <div class="mode-detail">
+        <span class="detail-label">Blocked categories</span>
+        <div class="chips">
+          {% for category in mode.blocked_categories|default([], true) %}<span class="chip blocked">{{ category }}</span>
+          {% else %}<span class="empty-inline">No blocked categories</span>{% endfor %}
+        </div>
+      </div>
+
+      <div class="mode-meta">
+        <span>Strictness <b>{{ strictness_labels.get(mode.strictness|default(3), 'Balanced') }}</b> ({{ mode.strictness|default(3) }}/5)</span>
+        {% if mode.is_protected %}<span class="protected-meta"><span aria-hidden="true">&#128274;</span> PIN protected</span>{% endif %}
+      </div>
+
+      {% if schedule_start and schedule_end %}
+        <div class="mode-schedule">
+          <span class="schedule-symbol" aria-hidden="true">&#128337;</span>
+          <div>
+            <b>Scheduled</b>
+            <span>
+              {% if schedule_days|length == 7 %}Every day{% elif schedule_days %}{% for day in schedule_days %}{{ day_names.get(day, day|title) }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}No days selected{% endif %}
+              &middot; {{ schedule_start }}&ndash;{{ schedule_end }}
+            </span>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="mode-card-actions">
+        <a class="small" href="{{ url_for('modes.edit_mode', mode_id=mode.id) }}">Edit{% if mode.is_protected %}<span class="sr-only"> protected mode</span>{% endif %}</a>
+        <form method="post" action="{{ url_for('modes.duplicate_mode', mode_id=mode.id) }}">
+          {% if action_form is defined %}{{ action_form.hidden_tag() }}{% else %}{{ csrf_input() }}{% endif %}
+          <button class="small" type="submit">Duplicate</button>
+        </form>
+        {% if not mode.is_active %}
+          <form method="post" action="{{ url_for('modes.activate_mode', mode_id=mode.id) }}">
+            {% if action_form is defined %}{{ action_form.hidden_tag() }}{% else %}{{ csrf_input() }}{% endif %}
+            <button class="small accent-outline" type="submit">{% if mode.is_protected %}<span aria-hidden="true">&#128274;</span>{% endif %} Activate</button>
+          </form>
+        {% endif %}
+        <form class="push-right" method="post" action="{{ url_for('modes.delete_mode', mode_id=mode.id) }}" data-confirm="Delete {{ mode.name|default('this mode', true) }}? This cannot be undone.">
+          {% if action_form is defined %}{{ action_form.hidden_tag() }}{% else %}{{ csrf_input() }}{% endif %}
+          <button class="icon-btn danger-icon" type="submit" aria-label="Delete {{ mode.name|default('mode', true) }}">&#128465;</button>
+        </form>
+      </div>
+      {% if mode.is_active %}<div class="active-edge" aria-hidden="true"></div>{% endif %}
+    </article>
+  {% endfor %}
+</div>
+{% else %}
+  {{ empty_state('🎯', 'Create your first mode', 'A mode combines preferred topics, blocked content, strictness, protection, and an optional schedule.', url_for('modes.create_mode'), 'Create a mode') }}
+  <div class="starter-modes" aria-label="Mode ideas">
+    <article><span aria-hidden="true">&#128218;</span><b>Study</b><small>Prioritize learning</small></article>
+    <article><span aria-hidden="true">&#128118;</span><b>Child</b><small>Safer discovery</small></article>
+    <article><span aria-hidden="true">&#128332;</span><b>Islamic</b><small>Faith-focused viewing</small></article>
+    <article><span aria-hidden="true">&#127881;</span><b>Fun</b><small>Intentional downtime</small></article>
+  </div>
+{% endif %}
+{% endblock %}
