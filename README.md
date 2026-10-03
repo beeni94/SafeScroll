@@ -23,3 +23,5 @@ Want to try it out on your machine?
 2. Enable Developer Mode in Chrome (`chrome://extensions/`).
 3. Click "Load unpacked" and select the extension folder.
 4. Set your preferences and test it out!
+
+![SafeScroll Demo](safescroll.gif)
