@@ -1,0 +1,21 @@
+#ss-pool-badge{
+  position:fixed!important;top:18px!important;left:50%!important;transform:translateX(-50%)!important;
+  z-index:2147483647!important;padding:12px 22px!important;border-radius:999px!important;color:white!important;
+  font-family:Arial,sans-serif!important;font-size:16px!important;font-weight:900!important;
+  box-shadow:0 8px 28px #0008!important;border:2px solid #ffffff80!important;pointer-events:none!important;
+}
+
+#ss-pool-shield{
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483646!important;
+  background:#050816!important;
+  color:white!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-family:Arial,sans-serif!important;
+  font-size:18px!important;
+  font-weight:900!important;
+  pointer-events:none!important;
+}

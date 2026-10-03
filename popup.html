@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SafeScroll</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<main class="app">
+  <header>
+    <h1>SafeScroll</h1>
+    <p>Clean Shorts Pool</p>
+  </header>
+
+  <section class="card">
+    <h2>Mode</h2>
+    <label><input type="radio" name="mode" value="testing" checked> Testing</label>
+    <label><input type="radio" name="mode" value="silent"> Silent</label>
+  </section>
+
+  <section class="card">
+    <h2>Interested Content</h2>
+    <textarea id="interests" placeholder="Quran recitation, Python coding, Java, Nasheed"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>Categories</h2>
+    <div id="categoryList"></div>
+  </section>
+
+  <section class="card">
+    <h2>Time Slot</h2>
+    <div class="time-row">
+      <input id="slotStart" type="time">
+      <input id="slotEnd" type="time">
+    </div>
+    <input id="slotKeywords" type="text" placeholder="Keywords for this time, e.g. Quran, study, Python">
+    <button id="addSlot" class="secondary">Add Slot</button>
+    <div id="slotList"></div>
+  </section>
+
+  <button id="save">Save</button>
+  <p id="status"></p>
+</main>
+<script src="popup.js"></script>
+</body>
+</html>
